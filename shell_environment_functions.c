@@ -1,25 +1,25 @@
-#ifndef _MAIN_2_H_
-#define _MAIN_2_H_
-
 #include "main.h"
-/**
- * free_ll - free's a singly linked list.
- * @head: head of linked list to be free'd.
- *
- * Return: nothing.
- */
-void free_ll(Node **head)
-{
-	Node *current, *aux;
 
-	current = *head;
-	while (current)
+/**
+ * _getenv - gets an environment variable. (without using getenv).
+ * @name: name of the environment variable to get.
+ *
+ * Return: a pointer to the environment variable value.
+ */
+char *_getenv(const char *name)
+{
+	unsigned int i;
+	size_t l;
+
+	l = strlen(name);
+
+	for (i = 0; environ[i]; i++)
 	{
-		aux = current;
-		current = current->next;
-		free(aux->key);
-		free(aux);
+		if (!strncmp(environ[i], name, l) && (environ[i][l] == '='))
+			return (&environ[i][l + 1]);
 	}
+
+	return (NULL);
 }
 
 /**
@@ -110,5 +110,3 @@ char *exe_find(char *exe)
 
 	return (to_exe);
 }
-
-#endif

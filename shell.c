@@ -1,15 +1,14 @@
 #include "main.h"
-#include "main-2.h"
 
 /**
- * execute - free's up shell arguments or execute shell arguments.
+ * free_arguments - free's up dynamic allocated strings.
  * @flag: 1 to execute arguments, 0 to free arguments, 2 to free linked list.
  * @args: shell arguments.
  * @line: pointer to store the address of the buffer containing the text.
  *
  * Return: nothing.
  */
-void execute(char flag, char **args, char *line)
+void free_arguments(char flag, char **args, char *line)
 {
 	int i;
 
@@ -23,7 +22,7 @@ void execute(char flag, char **args, char *line)
 	{
 		printf("./shell: No such file or directory\n");
 		free(line);
-		execute(0, args, NULL);
+		free_arguments(0, args, NULL);
 		exit(98);
 	}
 }
@@ -42,7 +41,7 @@ void non_inter(char *line, char **args, pid_t id)
 	{
 		if (!id)
 		{
-			execute(1, args, line);
+			free_arguments(1, args, line);
 		}
 		else
 			wait(NULL);
@@ -74,9 +73,9 @@ void displayAndRun(char *line, pid_t id, char **args)
 			{
 				to_exe = exe_find(args[0]);
 				if (!to_exe)
-					execute(1, args, line);
+					free_arguments(1, args, line);
 				if (execve(to_exe, args, NULL) == -1)
-					execute(1, args, line);
+					free_arguments(1, args, line);
 			}
 		}
 	}
@@ -94,7 +93,6 @@ void get_prompt(char *line, size_t n)
 	ssize_t nread;
 	pid_t id;
 	char **split;
-	extern char **environ;
 	int i;
 
 	while ((nread = getline(&line, &n, stdin)) != -1)
@@ -116,12 +114,12 @@ void get_prompt(char *line, size_t n)
 			free(line);
 			for (i = 0; environ[i]; i++)
 				printf("%s\n", environ[i]);
-			execute(0, split, NULL);
+			free_arguments(0, split, NULL);
 			exit(98);
 		}
 		displayAndRun(line, id, split);
 		non_inter(line, split, id);
-		execute(0, split, NULL);
+		free_arguments(0, split, NULL);
 	}
 	free(line);
 }
