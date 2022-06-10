@@ -2,7 +2,7 @@
 
 /**
  * free_arguments - free's up dynamic allocated strings.
- * @flag: 1 to execute arguments, 0 to free arguments, 2 to free linked list.
+ * @flag: 1 to execute arguments, 0 to free arguments, 2 to free line.
  * @args: shell arguments.
  * @line: pointer to store the address of the buffer containing the text.
  *
@@ -15,15 +15,25 @@ void free_arguments(char flag, char **args, char *line)
 	if (!flag)
 	{
 		for (i = 0; args[i]; i++)
+		{
 			free(args[i]);
+			args[i] = NULL;
+		}
 		free(args);
+		args = NULL;
 	}
-	else
+	if (flag == 1)
 	{
 		printf("./shell: No such file or directory\n");
 		free(line);
+		line = NULL;
 		free_arguments(0, args, NULL);
 		exit(98);
+	}
+	else
+	{
+		free(line);
+		line = NULL;
 	}
 }
 
@@ -71,7 +81,7 @@ void displayAndRun(char *line, pid_t id, char **args)
 		{
 			if (execve(args[0], args, NULL) == -1)
 			{
-				to_exe = exe_find(args[0]);
+				to_exe = find_executable(args[0]);
 				if (!to_exe)
 					free_arguments(1, args, line);
 				if (execve(to_exe, args, NULL) == -1)
@@ -97,9 +107,10 @@ void get_prompt(char *line, size_t n)
 
 	while ((nread = getline(&line, &n, stdin)) != -1)
 	{
+
 		if (!strncmp(line, "exit", 4))
 		{
-			free(line);
+			free_arguments(2, NULL, line);
 			exit(0);
 		}
 
@@ -111,7 +122,7 @@ void get_prompt(char *line, size_t n)
 
 		if (!strncmp(line, "env", 3) && !id)
 		{
-			free(line);
+			free_arguments(2, NULL, line);
 			for (i = 0; environ[i]; i++)
 				printf("%s\n", environ[i]);
 			free_arguments(0, split, NULL);
@@ -121,7 +132,7 @@ void get_prompt(char *line, size_t n)
 		non_inter(line, split, id);
 		free_arguments(0, split, NULL);
 	}
-	free(line);
+	free_arguments(2, NULL, line);
 }
 /**
  * main - a UNIX command line interpreter.

@@ -12,9 +12,10 @@
 
 extern char **environ;
 
-char *exe_find(char *exe);
+char *find_executable(char *exe);
 char **strsplt(char *str, char *token, char new_delim);
 int wrdcnt(char *str, char *token);
+void free_arguments(char flag, char **args, char *line);
 
 /**
  * struct Node - linked list node for environment variables
